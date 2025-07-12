@@ -1,0 +1,6 @@
+backend/api/brave/example.json
+backend/node_modules
+frontend/node_modules
+backend/python/.env
+frontend/.env
+backend/.env

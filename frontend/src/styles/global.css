@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Major+Mono+Display&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+body {
+    background-color: var(--background-1);
+}
+
+:root{
+    --background-1 : #111111;
+    --border-1 : #FFFFFF;
+    --text-color-dark: #FFFFFF;
+    --dark-tint : #0000008c
+}
+
+.background-main{
+    background-color: var(--background-1);
+}
+.deep-fire {
+    background: linear-gradient(20deg,#111111,#24016561,#007366,#022281,#041a3c);
+}
+.dark-tint{
+    background-color: var(--dark-tint);
+}
+.audio-wide {
+    font-family: "Audiowide", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+.major-mono {
+    font-family: "Major Mono Display", monospace;
+    font-weight: 400;
+    font-style: normal;
+  }
+  
