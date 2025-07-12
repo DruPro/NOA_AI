@@ -1,16 +1,21 @@
 import ThinkingImage from '$lib/icons/ai/network_intelligence_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg';
+import { getChatProgress, startChat } from "../api/noa/noa.svelte";
 /**
  * @typedef {"chatInit" | "chatListen" | "chatFinish"} ChatStateName
  */
 
 /**
- * @typedef {object} Job
- * @property {string} processID
- * @property {boolean} status
- * @property {Array<IndicatorObject>} messageStack
+ * @typedef {import('$lib/types/api.svelte'.DisplayUpdate)} DisplayUpdate
  */
 
-import { getChatProgress, startChat } from "../api/noa/noa.svelte";
+/**
+ * @typedef {import('$lib/types/api.svelte'.Job)} Job
+ */
+
+
+/**
+ * @typedef {Object.<ChatStateName, StateBehavior>} ChatListenerStates
+ */
 
 /**
  * @callback StateBehavior
@@ -18,9 +23,6 @@ import { getChatProgress, startChat } from "../api/noa/noa.svelte";
  * @returns {void}
  */
 
-/**
- * @typedef {Object.<ChatStateName, StateBehavior>} ChatListenerStates
- */
 
 /**
  * @description Chat listener is a statefull networking manager
@@ -66,7 +68,9 @@ export function useChatListener() {
                     console.log(result)
                     if (result.messageStack.length >= 1){
                         for (let message of result.messageStack){
-                            indicatorManager.displayIndicator(message)
+                            setTimeout(()=>{
+                                indicatorManager.updateDisplay(message);
+                            },1000)
                         }
                     }
                     //Job status not https status

@@ -35,7 +35,7 @@ app.post('/chat', (req, res) => {
   }
 })
 
-
+let count = 0;
 app.get('/chat/progress/:processID', (req, res) => {
   const processID = req.params.processID;
   const job = jobManager.getJob(processID)

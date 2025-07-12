@@ -1,5 +1,21 @@
 
 import { generateProcessID } from "../../helpers/generators.js";
+
+
+/**
+ * @typedef {Object} DisplayUpdate
+ * @property {'display' | 'status' } updateType
+ * @property {IndicatorObject} indicator 
+ */
+
+/**
+ * @typedef {object} Job
+ * @property {string} processID
+ * @property {boolean} status
+ * @property {Array<DisplayUpdate>} messageStack
+ */
+
+
 /**
  * @typedef IndicatorObject
  * @property {string} id
@@ -12,7 +28,7 @@ import { generateProcessID } from "../../helpers/generators.js";
  * @typedef {object} Job
  * @property {string} processID
  * @property {boolean} status
- * @property {Array<IndicatorObject>} messageStack
+ * @property {Array<DisplayUpdate>} messageStack
  */
 
 /**
