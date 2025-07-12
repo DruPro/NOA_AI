@@ -1,7 +1,3 @@
-Awesome — here's a clean, structured **overview documentation** of your frontend architecture and how it communicates with your API. It’s written in the tone of a real-world project README, highlighting the unique design choices you made.
-
----
-
 # 🧠 NOA Frontend Architecture Overview
 
 > *Process-Driven UI Feedback Architecture (PD-UFA)*
