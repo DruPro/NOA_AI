@@ -38,6 +38,7 @@ function PromptBuilder(jobProgressManager) {
                 updateType: 'display',
                 indicator: {
                     id: "searching",
+                    message: `Searching The Web`,
                     icon: "https://cdn-icons-png.flaticon.com/512/11493/11493785.png",
                     status: true
                 }
@@ -47,6 +48,7 @@ function PromptBuilder(jobProgressManager) {
                 updateType: 'display',
                 indicator: {
                     id: "searching",
+                    message: `Searching The Web`,
                     icon: "https://cdn-icons-png.flaticon.com/512/11493/11493785.png",
                     status: false
                 }

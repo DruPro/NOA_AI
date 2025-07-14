@@ -57,3 +57,17 @@ export async function getChatProgress(processID) {
     }
     else { return false }
 }
+
+export async function getChatResult(processID) {
+    const requestOptions = {
+        method: "Get",
+        headers: {
+            'Content-Type': "application/json",
+        }
+    }
+    const response = await fetch(NOA_API_URL + "/chat/finished/" + processID, requestOptions);
+    if (response.status === 200) {
+        return response.json();
+    }
+    else { return false }
+}

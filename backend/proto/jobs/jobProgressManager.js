@@ -111,7 +111,7 @@ function JobProgressManager() {
     this.dequeueJob = function (processID) {
         const job = this.getJob(processID);
         if (job) {
-            const jobIndex = this.jobQueue.findIndex()
+            const jobIndex = this.jobQueue.findIndex(j => j.processID === processID)
             this.jobQueue.splice(jobIndex, 1)
         } else {
             console.error(`Error: Could not find job : ${processID}`)
@@ -122,10 +122,14 @@ function JobProgressManager() {
     * @param {string} processID 
     */
     this.removeFinishedJob = function (processID) {
+        console.log("Removing Finished Jobs:")
+        console.log(processID)
         const job = this.getFinishedJob(processID);
+        console.log(job)
+        console.log(this.finishedJobs)
         if (job) {
-            const jobIndex = this.jobQueue.findIndex()
-            this.jobQueue.splice(jobIndex, 1)
+            const jobIndex = this.finishedJobs.findIndex(j => j.processID === processID);
+            this.finishedJobs.splice(jobIndex, 1)
         } else {
             console.error(`Error: Could not find job : ${processID}`)
         }

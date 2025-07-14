@@ -1,5 +1,6 @@
 import ThinkingImage from '$lib/icons/ai/network_intelligence_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg';
-import { getChatProgress, startChat } from "../api/noa/noa.svelte";
+import { error } from '@sveltejs/kit';
+import { getChatProgress, startChat, getChatResult } from "../api/noa/noa.svelte";
 /**
  * @typedef {"chatInit" | "chatListen" | "chatFinish"} ChatStateName
  */
@@ -28,33 +29,45 @@ import { getChatProgress, startChat } from "../api/noa/noa.svelte";
  * @description Chat listener is a statefull networking manager
  */
 export function useChatListener() {
-    const chatListenerConfig = {
+    const chatListenerConfig = $state({
         currentState: 'chatInit',
         isListening: false,
         currentProcessID: "",
-    }
+        output: ""
+    })
     /**
      * @type {ChatListenerStates}
      */
     const chatListenerStates = {
         //Initate chat or conversation,
         "chatInit": async function (chatConfigManager, indicatorManager) {
-            chatConfigManager.config.isListening = true;
-            const result = await startChat(chatConfigManager.config)
-            if (result) {
-                chatListenerConfig.currentProcessID = result.processID;
+            try {
+                indicatorManager.clearIndicators()
+                chatConfigManager.config.isListening = true;
+                const result = await startChat(chatConfigManager.config)
+                if (result) {
+                    chatListenerConfig.currentProcessID = result.processID;
+                    indicatorManager.displayIndicator({
+                        id: "initMessage",
+                        icon: ThinkingImage,
+                        message: `Job id : ${result.processID}`,
+                        status: true
+                    })
+                    console.log(result)
+                    transition('chatListen');
+                    exec(chatConfigManager, indicatorManager)
+                }
+            } catch (e) {
+                indicatorManager.clearIndicators();
                 indicatorManager.displayIndicator({
                     id: "initMessage",
                     icon: ThinkingImage,
-                    message: `Job id : ${result.processID}`,
+                    message: `Error : Failed Process : ${e}}`,
                     status: true
                 })
-                console.log(result)
-                transition('chatListen');
-                exec(chatConfigManager, indicatorManager)
-            } else {
-                console.error("Error: chatInit - Server side error")
+                console.error(`Error: on chatInit - Server side error ${e}`)
             }
+
         },
         // wait until job status is true meanwhile listen to messages on a queue
         "chatListen": async function (chatConfigManager, indicatorManager) {
@@ -66,27 +79,49 @@ export function useChatListener() {
                 let result = await getChatProgress(chatListenerConfig.currentProcessID)
                 if (result) {
                     console.log(result)
-                    if (result.messageStack.length >= 1){
-                        for (let message of result.messageStack){
-                            setTimeout(()=>{
+                    if (result.messageStack.length >= 1) {
+                        for (let message of result.messageStack) {
+                            setTimeout(() => {
+                                console.log(message)
                                 indicatorManager.updateDisplay(message);
-                            },1000)
+                            }, 100)
                         }
                     }
                     //Job status not https status
-                    if(result.status == true){
+                    if (result.status == true) {
                         clearInterval(checkProgressInterval)
                         transition('chatFinish')
-                        exec()
+                        exec(chatConfigManager, indicatorManager)
                     }
                 }
                 else {
-                    
+                    clearInterval(checkProgressInterval)
+                    transition('chatFinish')
+                    exec(chatConfigManager, indicatorManager)
+                    console.log(`Error: Could not get progress of ${chatListenerConfig.currentProcessID}`)
                 }
             }, 2000)
         },
-        "chatFinish": function () {
-                
+        "chatFinish": async function (chatConfigManager, indicatorManager) {
+            try {
+                indicatorManager.displayIndicator({
+                    id: "initMessage",
+                    icon: ThinkingImage,
+                    message: `Job id : ${chatListenerConfig.currentProcessID}`,
+                    status: false
+                })
+                chatListenerConfig.output = await getChatResult(chatListenerConfig.currentProcessID)
+            } catch (e) {
+                console.error(`Error: - chatFinish : failed to retrieve output ${e}`)
+                indicatorManager.clearIndicators();
+                indicatorManager.displayIndicator({
+                    id: "initMessage",
+                    icon: ThinkingImage,
+                    message: `Error : Failed To retrieve chatbot reply : ${chatListenerConfig.currentProcessID}`,
+                    status: true
+                })
+            }
+
         }
     }
     /**
@@ -126,7 +161,7 @@ export function useChatListener() {
         return chatListenerConfig.isListening
     }
 
-    return { transition, exec, getCurrentState, isListening }
+    return { transition, exec, getCurrentState, isListening, chatListenerConfig }
 }
 
 export default useChatListener

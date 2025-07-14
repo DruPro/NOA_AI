@@ -103,6 +103,7 @@
 	.container_chat_bot {
 		display: flex;
 		flex-direction: column;
+		width: 300px;
 	}
 
 	.container_chat_bot .container-chat-options {

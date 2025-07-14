@@ -1,6 +1,6 @@
 <script>
 	import { marked } from 'marked';
-  let {markdown = ""} = $props();
+	let { markdown = '' } = $props();
 </script>
 
 <div class="card">
@@ -12,11 +12,14 @@
 <style>
 	.preview {
 		color: white;
-    font-family: Oxanium, sans-serif ;
+		font-family: Oxanium, sans-serif;
 	}
 	.card {
 		--background: linear-gradient(to left, #014f44 0%, #00b48a 100%);
 		width: 1200px;
+		height: fit-content;
+		padding-bottom: 10px;
+		padding-top: 10px;
 		margin-left: auto;
 		height: 600px;
 		padding: 5px;

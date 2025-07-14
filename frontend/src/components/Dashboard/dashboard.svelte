@@ -7,13 +7,16 @@
 	import useChatConfigManager from '../../managers/chatConfigManager.svelte';
 	import useChatListener  from '../../managers/chatListener.svelte';
 
-	let chatInput = $state('');
-	
 	let indicatorManager = useIndicatorManager();
 	let chatConfigManager = useChatConfigManager();
 	let chatListener = useChatListener();
+	let chatInput = $state('');
 
 	async function onSend() {
+		getChatOutput()
+	}
+
+	async function getChatOutput() {
 		if(!chatListener.isListening()){
 			chatConfigManager.setPrompt(chatInput)
 			chatConfigManager.setPromptRole("User")
@@ -34,7 +37,7 @@
 			{/each}
 		</div>
 	</div>
-	<ChatOutput></ChatOutput>
+	<ChatOutput markdown={chatListener.chatListenerConfig.output}></ChatOutput>
 </div>
 
 <style>
@@ -72,6 +75,8 @@
 		padding: 40px;
 	}
 	.column-left {
-		width: 300px;
+		width: fit-content;
+		max-width: 400px;
+		padding-right: 10px;
 	}
 </style>

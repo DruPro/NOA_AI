@@ -22,6 +22,8 @@
 		gap: 10px;
 		align-items: center;
 		color: white;
+		flex-wrap: wrap;
+		text-wrap: wrap;
 		font-family: 'Oxanium', sans-serif;
 		font-size: 0.5rem;
 		animation: slideIn 0.5s cubic-bezier(0.56, 0.09, 0, 1.11);
