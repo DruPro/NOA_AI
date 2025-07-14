@@ -7,3 +7,5 @@ export function generateProcessID() {
     const currentTime = Temporal.Now.instant().toString();
     return randomIntString + ":" + ":" + currentTime;
 }
+
+

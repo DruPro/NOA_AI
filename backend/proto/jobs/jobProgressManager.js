@@ -9,6 +9,12 @@ import { generateProcessID } from "../../helpers/generators.js";
  */
 
 /**
+ * @typedef {object} FinishedJob
+ * @property {string} processID
+ * @property {string} result
+ */
+
+/**
  * @typedef {object} Job
  * @property {string} processID
  * @property {boolean} status
@@ -25,18 +31,13 @@ import { generateProcessID } from "../../helpers/generators.js";
  */
 
 /**
- * @typedef {object} Job
- * @property {string} processID
- * @property {boolean} status
- * @property {Array<DisplayUpdate>} messageStack
+ * @typedef {" search" | "file" } Modifier
  */
 
 /**
- * @typedef {" search" | "file" } Modifier
- */
-/**
  * @typedef {Array<Modifier>}ModiferList
  */
+
 /**
  * @typedef {object} ChatConfig
  * @property {ModiferList} modifiers
@@ -48,8 +49,15 @@ import { generateProcessID } from "../../helpers/generators.js";
 //change their properties accordingly
 
 
-function JobManager() {
+function JobProgressManager() {
+    /**
+     * @type {Array<Job>}
+     */
     this.jobQueue = [];
+    /**
+     * @type {Array<FinishedJob>}
+     */
+    this.finishedJobs = [];
     /**
      * @param {ChatConfig} chatConfig 
      * @returns {string} processID
@@ -66,15 +74,35 @@ function JobManager() {
             messageStack: [],
         }
         this.jobQueue.push(newJob)
+
         return newJob.processID;
     }
 
     /**
      * @param {string} processID 
+     * @param {FinishedJob} finishedJob 
+     * @returns {FinishedJob}
+     */
+    this.addFinishedJob = function (processID, finishedJob) {
+        if (!this.getFinishedJob(processID)) {
+            this.finishedJobs.push(finishedJob)
+        }
+        else {
+            console.error(`${processID} is already a finished job`)
+        }
+        return this.getFinishedJob(processID);
+    }
+
+    /**
+     * @description retrieve job from queue
+     * @param {string} processID 
      * @returns {Job} job
      */
     this.getJob = function (processID) {
         return this.jobQueue.find(job => job.processID === processID);
+    }
+    this.getFinishedJob = function (processID) {
+        return this.finishedJobs.find(job => job.processID === processID);
     }
 
     /**
@@ -88,8 +116,43 @@ function JobManager() {
         } else {
             console.error(`Error: Could not find job : ${processID}`)
         }
-
     }
+
+    /**
+    * @param {string} processID 
+    */
+    this.removeFinishedJob = function (processID) {
+        const job = this.getFinishedJob(processID);
+        if (job) {
+            const jobIndex = this.jobQueue.findIndex()
+            this.jobQueue.splice(jobIndex, 1)
+        } else {
+            console.error(`Error: Could not find job : ${processID}`)
+        }
+    }
+
+    /**
+    * @param {string | Job} jobRef The processID or queded job object reference
+    * @param {DisplayUpdate} displayUpdate
+    */
+    this.pushToMessageStack = function (jobRef, displayUpdate) {
+        if (typeof jobRef === 'string') {
+            const job = this.getJob(jobRef);
+            if (job) {
+                job.messageStack.push(displayUpdate)
+            } else {
+                console.error(`Error: JobID ${jobRef} is not an existing job`)
+                return
+            }
+        } else {
+            try {
+                jobRef.messageStack.push(displayUpdate);
+            } catch (e) {
+                console.error(`Couldnt not clear the messageStack. Is it a job object?`)
+            }
+        }
+    }
+
     /**
     * @param {string | Job} jobRef 
     */
@@ -114,4 +177,4 @@ function JobManager() {
     }
 
 }
-export default JobManager
+export default JobProgressManager

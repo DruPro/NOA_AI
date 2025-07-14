@@ -1,7 +1,10 @@
 import express from "express";
 import { Temporal } from '@js-temporal/polyfill';
 import cors from 'cors';
-import JobManager from './proto/jobs/jobManager.js'
+import JobProgressManager from './proto/jobs/jobProgressManager.js'
+import JobDispatcher from "./proto/jobs/jobDispatcher.js";
+import { fetchHuddleLLM } from "./api/huddle/huddleApi.js";
+import PromptBuilder from "./proto/jobs/promptBuilder.js";
 const app = express();
 const port = 3000;
 
@@ -9,8 +12,8 @@ const corsOptions = {
   origin: 'http://localhost:5173'
 }
 
-const jobManager = new JobManager();
-
+const jobProgressManager = new JobProgressManager();
+const jobDispatcher = new JobDispatcher(jobProgressManager);
 app.use(express.json(), cors(corsOptions));
 
 app.get('/health', (req, res) => {
@@ -22,7 +25,8 @@ app.get('/health', (req, res) => {
 
 app.post('/chat', (req, res) => {
   try {
-    const processID = jobManager.queueJob(req.body)
+    const processID = jobProgressManager.queueJob(req.body)
+    jobDispatcher.startJob(processID, req.body.chatConfig)
     console.log('/chat | ')
     console.log(req.body)
     res.status(200).json({
@@ -35,13 +39,29 @@ app.post('/chat', (req, res) => {
   }
 })
 
-let count = 0;
+
 app.get('/chat/progress/:processID', (req, res) => {
   const processID = req.params.processID;
-  const job = jobManager.getJob(processID)
+  const job = jobProgressManager.getJob(processID)
   if (job) {
     res.status(200).json(job)
-    jobManager.clearJobMessageStack(job);
+    jobProgressManager.clearJobMessageStack(job);
+  } else {
+    res.status(403).json({
+      error: `could not find job ${processID}`,
+      RFCC3399: Temporal.Now.instant(),
+    })
+  }
+
+})
+
+app.get('/chat/finished/:processID', (req, res) => {
+  const processID = req.params.processID;
+  const job = jobProgressManager.getFinishedJob(processID)
+  if (job) {
+    res.status(200).json(job.result)
+    jobProgressManager.removeFinishedJob(processID);
+    jobProgressManager.dequeueJob(processID);
   } else {
     res.status(403).json({
       error: `could not find job ${processID}`,
